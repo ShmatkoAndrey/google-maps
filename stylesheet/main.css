@@ -1,0 +1,38 @@
+#map {
+    width: 500px;
+    height: 500px;
+    display: inline-block;
+}
+
+
+#markers {
+    display: inline-block;
+    position: absolute;
+    height: 400px;
+    overflow: auto;
+}
+
+#times {
+    display: inline-block;
+}
+
+#range {
+    display: inline-block;
+}
+
+#range_val {
+    width: 35px;
+    display: inline-block;
+}
+
+#warning {
+    color: red;
+}
+
+.button {
+    padding: 10px;
+    margin: 5px;
+    border: 1px solid darkgrey;
+    display: inline-block;
+    cursor: pointer;
+}
