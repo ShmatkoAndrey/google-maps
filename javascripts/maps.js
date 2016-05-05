@@ -1,9 +1,14 @@
 /*
- используя Google Maps имеем возможность поставить точки на карте (правой кнопкой мыши поставить точку левой удалить).
+ используя Google Maps имеем возможность:
+
+ поставить точки на карте (правой кнопкой мыши поставить точку левой удалить).
+
  После последующей точки добавляем точке описание, сколько времени мы будем двигаться с начальной точки до этой,
  если у нас 3 точки то у 2ой точки растояние и время от 1ой у 3ей точки от 1ой и 2ой..
- есть поле в которое мы вводим среднюю скорость движения, от этого и считаем наше время… Также есть кнопка старт,
- при нажатии на нее на карте показывает как мы двигаемся по нашему маршруту согласно нашей скорости…
+
+ есть поле в которое мы вводим среднюю скорость движения, от этого и считаем наше время…
+
+ Также есть кнопка старт, при нажатии на нее на карте показывает как мы двигаемся по нашему маршруту согласно нашей скорости…
  */
 
 var map;
@@ -192,10 +197,21 @@ function distanceAll() {
                 var results = response.rows[i].elements;
                 for (var j = 0; j < results.length; j++) {
                     var element = results[j];
-                    var distance = element.distance.value;
-                    dist.push(distance);
-                    $('#times').html('Duration: ' + getDuration(getDistance()) + '<br />' +
-                        'Distance: ' + getDistance() / 1000 + ' km');
+                    if (element.distance) {
+                        var distance = element.distance.value;
+                        dist.push(distance);
+                        $('#times').html('Duration: ' + getDuration(getDistance()) + '<br />' +
+                            'Distance: ' + getDistance() / 1000 + ' km');
+                    }
+                    else {
+                        if(response.destinationAddresses[0].substr(0, 15) == markers[markers.length - 1].position.toString().replace('(', '').replace(')', '').replace(' ', '').substr(0, 15)) {
+                            var fail_marker = markers.pop();
+                            fail_marker.setMap(null);
+                            if($('#checkbox').prop('checked') && markers.length > 1) {
+                                buildRoutes();
+                            }
+                        }
+                    }
                 }
             }
         }
