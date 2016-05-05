@@ -12,11 +12,7 @@
     overflow: auto;
 }
 
-#times {
-    display: inline-block;
-}
-
-#range {
+#checkbox, #checkbox_label, #times, #range {
     display: inline-block;
 }
 
