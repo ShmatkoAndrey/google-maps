@@ -197,6 +197,7 @@ function distanceAll() {
     });
 
     function callback(response, status) {
+        dist = [];
         if (status == google.maps.DistanceMatrixStatus.OK) {
             var origins = response.originAddresses;
             for (var i = 0; i < origins.length; i++) {
