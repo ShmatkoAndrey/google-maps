@@ -15,6 +15,9 @@ var map;
 var markers = [];
 var dist = [];
 var id_marker = 0;
+var way = [];
+var interval_car;
+var marker_car;
 
 $(document).ready(function () {
     initMap();
@@ -43,7 +46,8 @@ function initMap() {
                 position: event.latLng,
                 map: map,
                 title: '',
-                id: id_marker++
+                id: id_marker++,
+                animation: google.maps.Animation.DROP
             });
 
             google.maps.event.addListener(marker, 'rightclick', function () {
@@ -55,30 +59,27 @@ function initMap() {
             markers.push(marker);
             showOneMarker(marker);
 
-            if($('#checkbox').prop('checked') && markers.length > 1) {
+            if ($('#checkbox').prop('checked') && markers.length > 1) {
                 buildRoutes();
             }
 
             distanceAll();
             var infowindow = new google.maps.InfoWindow();
-            google.maps.event.addListener(marker, 'click', (function (){
+            google.maps.event.addListener(marker, 'click', (function () {
                 return function () {
                     var d = getDistPoints(marker);
 
                     var cs = '<div>';
-                       if(d != 'start') {
-                          cs += d/1000 + ' km' +
-                           '<br>' +
-                           getDuration(d);
-                       }
+                    if (d != 'start') {
+                        cs += d / 1000 + ' km' +
+                            '<br>' +
+                            getDuration(d);
+                    }
                     else {
-                           cs += d;
-                       }
+                        cs += d;
+                    }
 
                     cs += '</div>';
-                    //'<textarea rows="2" id="id_tb_' + marker.id + '"></textarea>' +
-                    //'<br>' +
-                    //'<div class = "button" onclick="">Create info</div>' +
                     infowindow.setContent(cs);
                     infowindow.open(map, marker);
                 }
@@ -95,7 +96,7 @@ function route() {
         map: map,
         suppressMarkers: true
     });
-
+    
     var wp = [];
     markers.forEach(function (e, i) {
         if (i != 0 && i != markers.length - 1) {
@@ -117,12 +118,13 @@ function route() {
     directionsService.route(request, function (response, status) {
         if (status == google.maps.DirectionsStatus.OK) {
             directionsDisplay.setDirections(response);
+            way = response.routes[0].overview_path;
         }
     });
 
     markers.forEach(function(e){
         e.setMap(map);
-    })
+    });
 }
 
 function buildRoutes() {
@@ -136,6 +138,7 @@ function buildRoutes() {
 function resetRoutes() {
     $('#map').html('');
     $('#times').html('');
+    stopCarInterval();
     initMap();
     markers.forEach(function (e) {
         e.setMap(map);
@@ -148,6 +151,7 @@ function resetMarkers() {
     $('#map').html('');
     $('#times').html('');
     $('#markers').html('');
+    stopCarInterval();
     initMap();
     markers = [];
     dist = [];
@@ -204,7 +208,8 @@ function distanceAll() {
                             'Distance: ' + getDistance() / 1000 + ' km');
                     }
                     else {
-                        if(response.destinationAddresses[0].substr(0, 15) == markers[markers.length - 1].position.toString().replace('(', '').replace(')', '').replace(' ', '').substr(0, 15)) {
+                        if(response.destinationAddresses[0].substr(0, 15) ==
+                            markers[markers.length - 1].position.toString().replace('(', '').replace(')', '').replace(' ', '').substr(0, 15)) {
                             var fail_marker = markers.pop();
                             fail_marker.setMap(null);
                             if($('#checkbox').prop('checked') && markers.length > 1) {
@@ -253,4 +258,44 @@ function getDuration(distance) {
     if (h > 0) date += h + ' hours ';
     if (m > 0) date += m + ' minutes ';
     return date;
+}
+
+function stopCarInterval() {
+    if(interval_car) clearInterval(interval_car);
+    way = [];
+    marker_car.setMap(null);
+}
+
+function startDriving() {
+    if(interval_car) {
+        clearInterval(interval_car);
+        marker_car.setMap(null);
+    }
+
+    if(way.length == 0) {
+        buildRoutes();
+        setTimeout(function(){
+            startDriving();
+        }, 2000)
+    }
+    var step = 0;
+    var image = {
+        url: 'imgs/car-icon.png',
+        scaledSize: new google.maps.Size(25, 25)
+    };
+
+    marker_car = new google.maps.Marker({
+        position: way[step],
+        map: map,
+        title: 'Car',
+        icon: image
+    });
+
+    interval_car = setInterval(function() {
+        if(step > way.length - 1) clearInterval(interval_car);
+        marker_car.setMap(null);
+        marker_car.position = way[step++];
+        marker_car.setMap(map);
+    }, 100);
+
 }
