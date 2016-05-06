@@ -96,7 +96,7 @@ function route() {
         map: map,
         suppressMarkers: true
     });
-    
+
     var wp = [];
     markers.forEach(function (e, i) {
         if (i != 0 && i != markers.length - 1) {
@@ -128,6 +128,8 @@ function route() {
 }
 
 function buildRoutes() {
+    if(interval_car) clearInterval(interval_car);
+    if(marker_car) marker_car.setMap(null);
     dist = [];
     $('#map').html('');
     initMap();
@@ -263,7 +265,7 @@ function getDuration(distance) {
 function stopCarInterval() {
     if(interval_car) clearInterval(interval_car);
     way = [];
-    marker_car.setMap(null);
+    if(marker_car) marker_car.setMap(null);
 }
 
 function startDriving() {
@@ -296,6 +298,5 @@ function startDriving() {
         marker_car.setMap(null);
         marker_car.position = way[step++];
         marker_car.setMap(map);
-    }, 100);
-
+    }, getDistance() / rangerms() / 200);
 }
