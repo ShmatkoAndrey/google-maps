@@ -279,7 +279,7 @@ function startDriving() {
         buildRoutes();
         setTimeout(function(){
             startDriving();
-        }, 2000)
+        }, 5000)
     }
     var step = 0;
     var image = {
